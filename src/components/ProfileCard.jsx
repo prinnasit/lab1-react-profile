@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 function ProfileCard({ name, role, bio, theme = 'light' }) {
   const [skills, setSkills] = useState(['React', 'Git'])
   const [input, setInput] = useState('')
+  const [searchTerm, setSearchTerm] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [userData, setUserData] = useState(null)
@@ -49,6 +50,15 @@ function ProfileCard({ name, role, bio, theme = 'light' }) {
       setInput('')
     }
   }
+
+  const deleteSkill = (index) => {
+    setSkills(skills.filter((_, i) => i !== index))
+  }
+
+  // Task 1: Real-time filtering
+  const filteredSkills = skills.filter(skill =>
+    skill.toLowerCase().includes(searchTerm.toLowerCase())
+  )
 
   // Skeleton Screen while loading
   if (loading) {
@@ -101,6 +111,26 @@ function ProfileCard({ name, role, bio, theme = 'light' }) {
       
       <div style={{ marginTop: '20px' }}>
         <h3>Skills</h3>
+        
+        {/* Task 1: Search Filter */}
+        <div style={{ marginBottom: '15px' }}>
+          <input 
+            type="text" 
+            placeholder="Search skills..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{ 
+              padding: '8px', 
+              marginRight: '10px',
+              backgroundColor: inputBgColor,
+              color: textColor,
+              border: `1px solid ${borderColor}`,
+              borderRadius: '4px',
+              width: '200px'
+            }}
+          />
+        </div>
+
         <input 
           type="text" 
           placeholder="Add Skill" 
@@ -130,18 +160,55 @@ function ProfileCard({ name, role, bio, theme = 'light' }) {
           Add
         </button>
         
+        {/* Task 1: Display List with Real-time Filtering */}
         <div style={{ marginTop: '15px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-          {skills.map((skill, index) => (
-            <span key={index} style={{ 
-              backgroundColor: '#007bff', 
-              color: 'white', 
-              padding: '5px 10px', 
-              borderRadius: '15px',
-              fontSize: '14px'
-            }}>
-              {skill}
-            </span>
-          ))}
+          {filteredSkills.length > 0 ? (
+            filteredSkills.map((skill, index) => {
+              const skillIndex = skills.indexOf(skill)
+              const isReact = skill === 'React'
+              return (
+                <span 
+                  key={index} 
+                  style={{ 
+                    backgroundColor: isReact ? '#cc0000' : '#007bff',
+                    color: 'white', 
+                    padding: '5px 10px', 
+                    borderRadius: '15px',
+                    fontSize: '14px',
+                    fontWeight: isReact ? 'bold' : 'normal',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    cursor: 'pointer',
+                    transition: 'background-color 0.3s'
+                  }}
+                  title="Click X to delete"
+                >
+                  {skill}
+                  {/* Task 2: Delete Button */}
+                  <span 
+                    onClick={() => deleteSkill(skillIndex)}
+                    style={{
+                      cursor: 'pointer',
+                      fontWeight: 'bold',
+                      marginLeft: '5px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '16px',
+                      height: '16px',
+                      lineHeight: '1',
+                      userSelect: 'none'
+                    }}
+                  >
+                    ✕
+                  </span>
+                </span>
+              )
+            })
+          ) : (
+            <p style={{ color: isDark ? '#aaaaaa' : '#666' }}>No skills found</p>
+          )}
         </div>
       </div>
     </div>
